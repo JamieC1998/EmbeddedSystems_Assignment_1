@@ -14,8 +14,6 @@ PROCESS(example_broadcast_process, "Broadcast example");
 AUTOSTART_PROCESSES(&example_broadcast_process);
 /*---------------------------------------------------------------------------*/
 
-static int print_val;
-
 static void
 broadcast_recv(struct broadcast_conn *c, const rimeaddr_t *from)
 {

@@ -5,6 +5,8 @@
 
 #include "dev/button-sensor.h"
 
+#include "dev/sht11-sensor.h"
+
 #include "dev/leds.h"
 
 #include <stdio.h>
@@ -24,6 +26,11 @@ static struct unicast_conn uc;
 
 /*---------------------------------------------------------------------------*/
 
+
+static int print_val;
+
+static int values[4];
+
 static void
 broadcast_recv(struct broadcast_conn *c, const rimeaddr_t *from){
   
@@ -32,7 +39,9 @@ broadcast_recv(struct broadcast_conn *c, const rimeaddr_t *from){
 
   rimeaddr_t destination;
 
-  char str[5] = "Hello";
+  char str[10];
+
+  sprintf(str, "%d", print_val);
 
   packetbuf_copyfrom(str, 5);
 
@@ -50,6 +59,7 @@ broadcast_recv(struct broadcast_conn *c, const rimeaddr_t *from){
 static const struct broadcast_callbacks broadcast_call = { broadcast_recv };
 static struct broadcast_conn broadcast;
 
+
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(example_unicast_process, ev, data)
 {
@@ -57,9 +67,17 @@ PROCESS_THREAD(example_unicast_process, ev, data)
     
   PROCESS_BEGIN();
 
+  SENSORS_ACTIVATE(sht11_sensor);
+
   broadcast_open(&broadcast, 146, &broadcast_call);
 
   unicast_open(&uc, 140, &unicast_callbacks);
+
+  int i = 0;
+
+  for(i = 0; i < 4; i++){
+	values[i] = 0;
+  }
 
   while(1) {
 
@@ -70,6 +88,29 @@ PROCESS_THREAD(example_unicast_process, ev, data)
     etimer_set(&et, CLOCK_SECOND);
     
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
+
+    int store = print_val = sht11_sensor.value(SHT11_SENSOR_TEMP);
+
+    
+
+    for(i = 0; i < 4; i++){
+	if((i + 1) < 4){
+	  values[i] = values[i + 1];
+
+	}
+    }
+
+    values[3] = store;
+
+    store = 0;
+
+	for(i = 0; i < 4; i++){
+		store = store + values[i];
+	}
+
+        print_val = store / 4;
+
+
 
   }
 
