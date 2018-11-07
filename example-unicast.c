@@ -116,6 +116,8 @@ PROCESS_THREAD(example_unicast_process, ev, data)
 
     int store = print_val = sht11_sensor.value(SHT11_SENSOR_TEMP);
 
+    store = (-39.60 + 0.01 * store);
+
     /*
     This block of code pushes out the first value
     read in out of the array and compresses it leaving 
@@ -151,3 +153,4 @@ PROCESS_THREAD(example_unicast_process, ev, data)
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
+
