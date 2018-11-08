@@ -107,14 +107,12 @@ PROCESS_THREAD(example_unicast_process, ev, data)
   while(1) {
 
     static struct etimer et;
-
-    rimeaddr_t addr;
     
     etimer_set(&et, CLOCK_SECOND);
     
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
 
-    int store = print_val = sht11_sensor.value(SHT11_SENSOR_TEMP);
+    int store = sht11_sensor.value(SHT11_SENSOR_TEMP);
 
     store = (-39.60 + 0.01 * store);
 
